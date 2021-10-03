@@ -11,38 +11,33 @@ namespace ELIProcessing
     {
         public ushort[] pixelsFirst;
         public ushort[] pixelsSecond;
-        //массив, где накапливается результат вычислений из разных потоков. Выбран обычный массив, так как по логике приложения к каждым конкретным элементом массива работает только один поток 
         private ushort[] pixelsOut;
+
         /// <summary>
         /// деление каждого значения пикселя из pixelsFirst  на соответствующий пиксель из pixelsSecond
         /// </summary>
         /// <returns>результат вычислений</returns>
         public ushort[] Division()
         {
-            //число процессоров
             var processorsCount = Environment.ProcessorCount;
             var countPixelsToProcessor = 0;
 
-            //количество пикселей на один поток
             countPixelsToProcessor = pixelsFirst.Length / processorsCount + (pixelsFirst.Length % processorsCount > 0 ? 1 : 0);
-            //коллекция потоков по числу процессоров 
             List<Thread> threads = new List<Thread>(processorsCount);
             pixelsOut = new ushort[pixelsFirst.Length];
-            //заполнение коллекции потоков потоками метода DivisionMethod
             for (int i = 0; i < processorsCount; i++)
             {
                 threads.Add(new Thread(this.DivisionMethod));
             }
 
             int carentStartIndex = 0;
-            //запускаются потоки, в потоки передается начальный идекс в коллекциях пикселей с которого данный поток начнет вычисление и заполннение результирующей коллекции и количество пикселей, требуемое обработать в этом потоке. 
             for (int i = 0; i < processorsCount; i++)
             {
                 threads[i].Name = i.ToString();
-                threads[i].Start(new int[] { carentStartIndex, (carentStartIndex + countPixelsToProcessor) > pixelsFirst.Length ? pixelsFirst.Length : carentStartIndex + countPixelsToProcessor });
+                threads[i].Start(new int[] { carentStartIndex, (carentStartIndex + countPixelsToProcessor) > pixelsFirst.Length
+                    ? pixelsFirst.Length : carentStartIndex + countPixelsToProcessor });
                 carentStartIndex += countPixelsToProcessor;
             }
-            //ожидается завершения потоков из коллекции threads
             foreach (var thred in threads)
             {
                 thred.Join();

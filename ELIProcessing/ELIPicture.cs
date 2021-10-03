@@ -7,7 +7,6 @@ namespace ELIProcessing
     /// </summary>
     class ELIPicture
     {
-        // коллекция пикселей
         private ushort[] data;
         /// <summary>
         /// ширина изображения
@@ -39,11 +38,12 @@ namespace ELIProcessing
                 data = value;
             }
         }
+
         /// <summary>
         /// прочитать изображение
         /// </summary>
         /// <param name="path">путь к изображению</param>
-        public void ReadFile(string path)
+        public void LoadFromFile(string path)
         {
             if (File.Exists(path))
             {
@@ -73,7 +73,6 @@ namespace ELIProcessing
                         {
                             break;
                         }
-
                     }
                     int countPixels = (int)((new FileInfo(path)).Length - dataOffset) / 2;
                     data = new ushort[countPixels];
@@ -81,20 +80,19 @@ namespace ELIProcessing
                     {
                         data[i] = (reader.ReadUInt16());
                     }
-
                 }
-
             }
             else
             {
                 throw new FileNotFoundException(path);
             }
         }
+
         /// <summary>
-        /// записать изображение
+        /// записать изображение 
         /// </summary>
         /// <param name="path">путь к изображению</param>
-        public void WriteFile(string path)
+        public void WriteToFile(string path)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.OpenOrCreate)))
             {
